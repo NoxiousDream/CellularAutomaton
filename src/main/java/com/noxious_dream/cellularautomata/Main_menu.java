@@ -17,7 +17,6 @@ public class Main_menu extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("Main_menu.fxml"));
-        Main_menu_Controller controller = new Main_menu_Controller();
         Parent root = loader.load();
         primaryStage.setTitle("CellularAutomata");
         primaryStage.setScene(new Scene(root));

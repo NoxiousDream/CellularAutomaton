@@ -1,6 +1,9 @@
 com\noxious_dream\cellularautomata\Hexagon.class
+com\noxious_dream\cellularautomata\Square.class
 com\noxious_dream\cellularautomata\Renderer$1.class
 module-info.class
 com\noxious_dream\cellularautomata\Main_menu_Controller.class
+com\noxious_dream\cellularautomata\Shapes_Type.class
+com\noxious_dream\cellularautomata\Shape.class
 com\noxious_dream\cellularautomata\Renderer.class
 com\noxious_dream\cellularautomata\Main_menu.class

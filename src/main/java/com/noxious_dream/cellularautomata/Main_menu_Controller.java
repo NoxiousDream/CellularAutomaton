@@ -1,9 +1,6 @@
 package com.noxious_dream.cellularautomata;
 
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
@@ -11,9 +8,10 @@ import java.util.ArrayList;
 
 public class Main_menu_Controller {
 
-    public TextField G;
-    public TextField B;
-    public TextField S;
+    // Objects on the main_menu screen
+    public TextField G; // Generations
+    public TextField B; // Birth rules
+    public TextField S; // Survival rules
     public TextField Rad_s;
     public TextField X_Count;
     public TextField Y_Count;
@@ -21,16 +19,19 @@ public class Main_menu_Controller {
     public Button Gen_Percent;
     public Label B_Label;
     public Label S_Label;
-    int Gens = 6;
+    public MenuButton Menu;
+
+    int Gens = 2;
     int[] B_List = new int[]{2};
     int[] S_List = new int[]{3, 4};
     int X = 60;
     int Y = 30;
     public static Renderer win;
-
     private int Radius = 10;
     private int percent = 50;
+    Shapes_Type type = Shapes_Type.Hexagon;
 
+    private int B_S_Max = 6;
 
     public void Radius_p_pressed() {
         if (Radius < 15)
@@ -46,20 +47,18 @@ public class Main_menu_Controller {
 
     public void GenerateEmpty() {
         if (win == null)
-            win = new Renderer(Radius, X, Y, B_List, S_List, Gens, 0);
+            win = new Renderer(Radius, X, Y, B_List, S_List, Gens, 0, type);
+    }
+
+    public void GeneratePercent() {
+        if (win == null)
+            win = new Renderer(Radius, X, Y, B_List, S_List, Gens, percent, type);
     }
 
     public void PercentageChanged() {
         percent = (int) slider_percent.getValue();
         Gen_Percent.setText("With " + percent + "% fullness");
     }
-
-    public void GeneratePercent() {
-        if (win == null)
-            win = new Renderer(Radius, X, Y, B_List, S_List, Gens, percent);
-    }
-
-    //public void initialize() {}
 
     public void Set_Rad_By_Text(KeyEvent actionEvent) {
         if (actionEvent.getCode() == KeyCode.ENTER || actionEvent.getCode() == KeyCode.TAB) {
@@ -91,13 +90,13 @@ public class Main_menu_Controller {
         }
     }
 
-    public void GetB() {
-        ArrayList<Integer> list = new ArrayList<Integer>();
+    public void GetB()  {
+        ArrayList<Integer> list = new ArrayList<>();
         String str = B.getText();
         for (int i = 0; i <= str.length(); i++) {
             try {
                 int curr = Integer.parseInt(String.valueOf(str.charAt(i)));
-                if (curr >= 0 && curr <= 6 && !list.contains(curr))
+                if (curr >= 0 && curr <= B_S_Max && !list.contains(curr))
                     list.add(curr);
             } catch (Exception _) {
             }
@@ -110,16 +109,16 @@ public class Main_menu_Controller {
         }
         if (str_for_label.toString().endsWith(", "))
             str_for_label.delete(str_for_label.length() - 2, str_for_label.length());
-        B_Label.setText("= " + String.valueOf(str_for_label));
+        B_Label.setText("= " + str_for_label);
     }
 
     public void GetS() {
-        ArrayList<Integer> list = new ArrayList<Integer>();
+        ArrayList<Integer> list = new ArrayList<>();
         String str = S.getText();
         for (int i = 0; i < str.length(); i++) {
             try {
                 int curr = Integer.parseInt(str.substring(i, i + 1));
-                if (curr >= 0 && curr <= 6)
+                if (curr >= 0 && curr <= B_S_Max && !list.contains(curr))
                     list.add(curr);
             } catch (Exception _) {
             }
@@ -133,7 +132,7 @@ public class Main_menu_Controller {
         }
         if (str_for_label.toString().endsWith(", "))
             str_for_label.delete(str_for_label.length() - 2, str_for_label.length());
-        S_Label.setText("= " + String.valueOf(str_for_label));
+        S_Label.setText("= " + str_for_label);
     }
 
     public void GetG(KeyEvent actionEvent) {
@@ -149,5 +148,17 @@ public class Main_menu_Controller {
 
     static public void close() {
         win = null;
+    }
+
+    public void Pressed_Hexagon() {
+        Menu.setText("Hexagon");
+        B_S_Max = 6;
+        type = Shapes_Type.Hexagon;
+    }
+
+    public void Pressed_Square() {
+        Menu.setText("Square");
+        B_S_Max = 8;
+        type = Shapes_Type.Square;
     }
 }

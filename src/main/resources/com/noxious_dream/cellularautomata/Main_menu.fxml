@@ -3,13 +3,25 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox prefHeight="450.0" prefWidth="350.0" spacing="10" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.noxious_dream.cellularautomata.Main_menu_Controller">
+<VBox maxHeight="450.0" maxWidth="350.0" minHeight="450.0" minWidth="350.0" prefHeight="450.0" prefWidth="350.0"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.noxious_dream.cellularautomata.Main_menu_Controller">
+    <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="70.0"
+               text="Type"/>
+        <MenuButton text="Hexagon" fx:id="Menu">
+            <items>
+                <MenuItem text="Hexagon" onAction="#Pressed_Hexagon"/>
+                <MenuItem text="Square" onAction="#Pressed_Square"/>
+                <MenuItem text="Triangle" onAction="#Pressed_Triangle"/>
+            </items>
+        </MenuButton>
+    </HBox>
 
     <!--Top_row-->
     <HBox spacing="10">
-        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Radius"
-               textAlignment="CENTER"/>
+        <Label alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="70.0"
+               text="Radius" textAlignment="CENTER"/>
         <TextField fx:id="Rad_s" onKeyPressed="#Set_Rad_By_Text" text="10"/>
         <Button alignment="CENTER" onAction="#Radius_m_pressed" text="–"/>
         <Button alignment="CENTER" onAction="#Radius_p_pressed" text="+"/>
@@ -41,7 +53,7 @@
     <HBox>
         <Label prefWidth="80.0" text="Birth"/>
         <TextField fx:id="B" onKeyPressed="#GetB" prefWidth="170.0" promptText="Enter numbers (0...6)" text="2"/>
-        <Label text="= 2" textFill="#888888" fx:id="B_Label">
+        <Label fx:id="B_Label" text="= 2" textFill="#888888">
             <HBox.margin>
                 <Insets left="10.0"/>
             </HBox.margin>
@@ -50,7 +62,7 @@
     <HBox>
         <Label prefWidth="80.0" text="Survival"/>
         <TextField fx:id="S" onKeyPressed="#GetS" prefWidth="170.0" promptText="Enter numbers (0...6)" text="34"/>
-        <Label text="= 3, 4" textFill="#888888" fx:id="S_Label">
+        <Label fx:id="S_Label" text="= 3, 4" textFill="#888888">
             <HBox.margin>
                 <Insets left="10.0"/>
             </HBox.margin>
@@ -58,7 +70,7 @@
     </HBox>
     <HBox layoutX="20.0" layoutY="189.0">
         <Label prefWidth="80.0" text="Generations"/>
-        <TextField fx:id="G" onKeyPressed="#GetG" prefWidth="170.0" promptText="Enter number (2...20)" text="6"/>
+        <TextField fx:id="G" onKeyPressed="#GetG" prefWidth="170.0" promptText="Enter number (2...20)" text="2"/>
     </HBox>
     <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308"
            maxWidth="1.7976931348623157E308" text="Generate" textAlignment="CENTER">

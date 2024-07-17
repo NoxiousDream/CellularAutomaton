@@ -12,11 +12,11 @@ import javafx.stage.StageStyle;
 
 import java.util.Random;
 
-public class Renderer extends Stage {
-    Hexagon[][] hexagons;
+public class Renderer {
+    Shape[][] grid;
     GraphicsContext gc;
     Stage stage;
-    int States_Of_Hexagons;
+    int States_Of_Shapes;
     int State_Of_Window = 0; // 0 — настройка, 1 — симуляция, 2 — подсчёт
     int X_count;
     int Y_count;
@@ -26,45 +26,34 @@ public class Renderer extends Stage {
     int[] S;
     int Persentage;
 
-    public Renderer(int radius, int xCount, int yCount, int[] B_input, int[] S_input, int states_Of_Hexagons, int percentage) {
-        Hexagon.SetRadius(radius);
+    public Renderer(int radius, int xCount, int yCount, int[] B_input, int[] S_input, int States_of_Shapes,
+                    int percentage, Shapes_Type type) {
+        Shape.radius = radius;
         X_count = xCount;
         Y_count = yCount;
         B = B_input;
         S = S_input;
-        States_Of_Hexagons = states_Of_Hexagons;
+        this.States_Of_Shapes = States_of_Shapes;
         Persentage = percentage;
-        start(new Stage());
-    }
 
-    private boolean Contains(int[] array, int value) {
-        for (int elem : array) {
-            if (elem == value) return true;
-        }
-        return false;
-    }
-
-    private void GenerateGrid(double chanse) {
-        Random rand = new Random();
-
-        for (int i = 0; i < Y_count; i++) {
-            for (int j = 0; j < X_count; j++) {
-                hexagons[j][i] = new Hexagon(
-                        X_dist * j * Hexagon.Radius + (X_dist / 2) * (i % 2) * Hexagon.Radius + Hexagon.Radius * 2,
-                        Y_dist * i * Hexagon.Radius + Hexagon.Radius * 2,
-                        rand.nextFloat() > chanse ? 0 : 1);
-            }
-        }
-    }
-
-    public void start(Stage stage) {
-        this.stage = stage;
+        stage = new Stage();
         Group group = new Group();
-        Canvas canvas = new Canvas(
-                Hexagon.Radius * 4 + Hexagon.Radius * (X_count - 0.5) * X_dist,
-                Hexagon.Radius * 4 + Hexagon.Radius * (Y_count - 1) * Y_dist);
+        Canvas canvas = switch (type) {
+            case Hexagon -> {
+                grid = new Hexagon[X_count][Y_count];
+                yield new Canvas(
+                        Shape.radius * 4 + Shape.radius * (X_count - 0.5) * X_dist,
+                        Shape.radius * 4 + Shape.radius * (Y_count - 1) * Y_dist);
+            }
+            case Square -> {
+                grid = new Square[X_count][Y_count];
+                yield new Canvas(
+                        Shape.radius * 2 * (X_count + 1),
+                        Shape.radius * 2 * (Y_count + 1));
+            }
+        };
+
         gc = canvas.getGraphicsContext2D();
-        hexagons = new Hexagon[X_count][Y_count];
         group.getChildren().add(canvas);
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(new Scene(group));
@@ -74,14 +63,14 @@ public class Renderer extends Stage {
             if (State_Of_Window != 0) return;
             for (int i = 0; i < X_count; i++) {
                 for (int j = 0; j < Y_count; j++) {
-                    Hexagon h = hexagons[i][j];
+                    Shape h = grid[i][j];
                     if (h.IsInside(e.getX(), e.getY())) {
-                        h.ChangeState(true, States_Of_Hexagons);
+                        h.ChangeState(true, States_Of_Shapes);
+                        Render();
+                        return;
                     }
                 }
-
             }
-            Render();
         });
         stage.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             switch (e.getCode()) {
@@ -106,24 +95,29 @@ public class Renderer extends Stage {
 
                         for (int i = 0; i < X_count; i++) {
                             for (int j = 0; j < Y_count; j++) {
-                                int active_neighbors = Hexagon.Count_Neighbors_For_Hexagons(hexagons, i, j); // подсчёт "живых" соседей
-                                if (hexagons[i][j].getState() == 0) {
+
+                                int active_neighbors = switch (type) {
+                                    case Hexagon -> Hexagon.Count_Neighbors(grid, i, j);
+                                    case Square -> Square.Count_Neighbors(grid, i, j);
+                                };
+                                if (grid[i][j].GetState() == 0) {
                                     if (Contains(B, active_neighbors)) {
-                                        hexagons[i][j].ChangeState(false, States_Of_Hexagons);
+                                        grid[i][j].ChangeState(false, States_Of_Shapes);
                                     }
-                                } else if (hexagons[i][j].getState() == 1) {
-                                    if (!Contains(S, active_neighbors)) {
-                                        hexagons[i][j].ChangeState(false, States_Of_Hexagons);
-                                    }
-                                } else {
-                                    hexagons[i][j].ChangeState(false, States_Of_Hexagons);
+                                } else if (grid[i][j].GetState() == 1) {
+                                    if (!Contains(S, active_neighbors))
+                                        grid[i][j].ChangeState(false, States_Of_Shapes);
+
+                                } else if (States_Of_Shapes != 2) {
+                                    grid[i][j].ChangeState(false, States_Of_Shapes);
                                 }
                             }
                         }
 
+                        // Grid update
                         for (int i = 0; i < X_count; i++) {
                             for (int j = 0; j < Y_count; j++) {
-                                hexagons[i][j].Update();
+                                grid[i][j].Update();
                             }
                         }
 
@@ -135,19 +129,45 @@ public class Renderer extends Stage {
         });
 
 
-        GenerateGrid(Persentage / 100.0);
+        GenerateGrid(Persentage / 100.0, type);
 
         Render();
 
         stage.show();
     }
 
+    private boolean Contains(int[] array, int value) {
+        for (int elem : array) {
+            if (elem == value) return true;
+        }
+        return false;
+    }
+
+    private void GenerateGrid(double chanse, Shapes_Type type) {
+        Random rand = new Random();
+
+        for (int i = 0; i < Y_count; i++) {
+            for (int j = 0; j < X_count; j++) {
+                switch (type) {
+                    case Hexagon -> grid[j][i] = new Hexagon(
+                            X_dist * j * Shape.radius + (X_dist / 2) * (i % 2) * Shape.radius + Shape.radius * 2,
+                            Y_dist * i * Shape.radius + Shape.radius * 2,
+                            rand.nextFloat() > chanse ? 0 : 1);
+                    case Square -> grid[j][i] = new Square(
+                            j * Shape.radius * 2 + Shape.radius * 2,
+                            i * Shape.radius * 2 + Shape.radius * 2,
+                            rand.nextFloat() > chanse ? 0 : 1);
+                }
+            }
+        }
+    }
+
     private void Render() {
         gc.setFill(Color.WHITE);
         gc.fillRect(0, 0, stage.getWidth(), stage.getHeight());
-        for (Hexagon[] row : hexagons) {
-            for (Hexagon h : row)
-                h.Draw(gc, State_Of_Window, States_Of_Hexagons);
+        for (Shape[] row : grid) {
+            for (Shape s : row)
+                s.Draw(gc, State_Of_Window, States_Of_Shapes);
         }
     }
 }
